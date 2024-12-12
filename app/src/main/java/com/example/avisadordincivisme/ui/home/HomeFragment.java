@@ -21,7 +21,7 @@ import com.example.avisadordincivisme.databinding.FragmentHomeBinding;
 public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding binding;
-    ActivityResultLauncher<String[]> locationPermissionRequest = null;
+    ActivityResultLauncher<String[]> locationPermissionRequest;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -34,6 +34,20 @@ public class HomeFragment extends Fragment {
 
         final TextView textView = binding.textHome;
         homeViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+
+        locationPermissionRequest = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+            Boolean fineLocationGranted = result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false);
+            Boolean coarseLocationGranted = result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false);
+            if (fineLocationGranted != null && fineLocationGranted) {
+                getLocation();
+            } else if (coarseLocationGranted != null && coarseLocationGranted) {
+                getLocation();
+            } else {
+                Toast.makeText(requireContext(), "No conceden permisos!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
         return root;
     }
 
